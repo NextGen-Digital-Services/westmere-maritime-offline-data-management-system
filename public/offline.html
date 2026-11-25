@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SeaSync - Offline</title>
+  <style>
+    body {
+      background: #0A2540;
+      color: #F6F3EC;
+      font-family: Inter, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+    }
+    h1 { font-family: 'Plus Jakarta Sans', sans-serif; color: #00A7A7; margin-bottom: 8px; }
+    p { max-width: 480px; line-height: 1.6; color: #D2D6DC; }
+    .badge { background: #FF7A1A; color: white; padding: 6px 14px; border-radius: 9999px; font-weight: bold; margin-bottom: 20px; display: inline-block; }
+    button { background: #1565C0; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="badge">VESSEL OFFLINE MODE</div>
+  <h1>SeaSync Offline Storage Ready</h1>
+  <p>You are disconnected from satellite/shore network, but SeaSync is running locally from IndexedDB. All saved drafts, pending logs, and cached reports remain fully accessible.</p>
+  <button onclick="window.location.reload()">Reload Application</button>
+</body>
+</html>

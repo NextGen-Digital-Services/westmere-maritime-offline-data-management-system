@@ -1,0 +1,52 @@
+:root {
+  /* Brand Palette */
+  --color-navy: #0A2540;
+  --color-ocean: #1565C0;
+  --color-ocean-subtle: #E3F2FD;
+  --color-teal: #00A7A7;
+  --color-teal-subtle: #E0F7F7;
+  --color-sea-green: #1FAF6B;
+  --color-sea-green-subtle: #E8F8F0;
+  --color-signal-orange: #FF7A1A;
+  --color-signal-orange-subtle: #FFF2E8;
+  --color-coral-red: #E5484D;
+  --color-coral-red-subtle: #FDE8E9;
+  --color-sunshine-yellow: #F5B700;
+  --color-sunshine-yellow-subtle: #FEF8E6;
+  --color-violet: #6D4AFF;
+  --color-violet-subtle: #F0EDFF;
+
+  /* Theme Tokens - Light Mode (Default) */
+  --color-bg: #F6F3EC;           /* Sand Ivory */
+  --color-card-bg: #FFFFFF;
+  --color-bg-subtle: #EFECE3;
+  --color-border: #DCD8CD;
+  --color-text: #0B1220;          /* Deep Ink */
+  --color-text-muted: #5F6B7C;
+  --sidebar-bg: #0A2540;
+  --sidebar-text: #F6F3EC;
+  --header-bg: #0A2540;
+  --header-text: #FFFFFF;
+}
+
+.dark {
+  /* Theme Tokens - Dark Mode */
+  --color-bg: #0B1220;           /* Deep Ink */
+  --color-card-bg: #121B2D;
+  --color-bg-subtle: #19253C;
+  --color-border: #23334F;
+  --color-text: #F6F3EC;
+  --color-text-muted: #9BA9BD;
+  --sidebar-bg: #071526;
+  --sidebar-text: #E5E9F0;
+  --header-bg: #071526;
+  --header-text: #FFFFFF;
+
+  --color-ocean-subtle: #162C4E;
+  --color-teal-subtle: #10343E;
+  --color-sea-green-subtle: #133928;
+  --color-signal-orange-subtle: #3F2311;
+  --color-coral-red-subtle: #3D161A;
+  --color-sunshine-yellow-subtle: #3B3008;
+  --color-violet-subtle: #241D4E;
+}

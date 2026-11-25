@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="36" fill="#0A2540"/>
+  <path d="M40 120 C 60 110, 80 130, 100 120 C 120 110, 140 130, 160 120" stroke="#00A7A7" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M30 142 C 55 132, 75 150, 100 142 C 125 132, 145 150, 170 142" stroke="#1565C0" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- Vessel Hull -->
+  <polygon points="50,105 142,105 128,124 64,124" fill="#FFFFFF"/>
+  <!-- Bridge Superstructure -->
+  <rect x="74" y="80" width="36" height="25" rx="3" fill="#00A7A7"/>
+  <rect x="80" y="86" width="10" height="7" rx="1" fill="#0A2540"/>
+  <rect x="94" y="86" width="10" height="7" rx="1" fill="#0A2540"/>
+  <!-- Radar Mast -->
+  <line x1="92" y1="80" x2="92" y2="68" stroke="#FFFFFF" stroke-width="3"/>
+  <circle cx="92" cy="67" r="4" fill="#FF7A1A"/>
+  <!-- Sync Arrow Ring -->
+  <path d="M125 65 A 18 18 0 1 0 143 83" fill="none" stroke="#1FAF6B" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="143,76 148,85 138,85" fill="#1FAF6B"/>
+</svg>

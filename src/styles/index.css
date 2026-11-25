@@ -1,0 +1,105 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Maritime Status Badges */
+.badge-draft {
+  background-color: var(--color-sunshine-yellow-subtle);
+  color: #996B00;
+  border: 1px solid var(--color-sunshine-yellow);
+}
+.dark .badge-draft {
+  color: #FFD147;
+}
+
+.badge-pending {
+  background-color: var(--color-signal-orange-subtle);
+  color: #B34E00;
+  border: 1px solid var(--color-signal-orange);
+}
+.dark .badge-pending {
+  color: #FFA65E;
+}
+
+.badge-syncing {
+  background-color: var(--color-ocean-subtle);
+  color: #0D47A1;
+  border: 1px solid var(--color-ocean);
+}
+.dark .badge-syncing {
+  color: #64B5F6;
+}
+
+.badge-synced {
+  background-color: var(--color-sea-green-subtle);
+  color: #0E683D;
+  border: 1px solid var(--color-sea-green);
+}
+.dark .badge-synced {
+  color: #4ADE80;
+}
+
+.badge-failed {
+  background-color: var(--color-coral-red-subtle);
+  color: #9E1C23;
+  border: 1px solid var(--color-coral-red);
+}
+.dark .badge-failed {
+  color: #FF8085;
+}
+
+.badge-conflict {
+  background-color: var(--color-violet-subtle);
+  color: #4321C9;
+  border: 1px solid var(--color-violet);
+}
+.dark .badge-conflict {
+  color: #B5A1FF;
+}
+
+/* Animations */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.animate-soft-pulse {
+  animation: softPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-gentle-shake {
+  animation: gentleShake 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
