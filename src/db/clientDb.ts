@@ -3,6 +3,7 @@ import Dexie, { type EntityTable } from 'dexie';
 export type UserRole = 'Crew' | 'Officer' | 'Master' | 'Shore Admin';
 export type RecordStatus = 'Draft' | 'Pending Sync' | 'Syncing' | 'Synced' | 'Failed' | 'Conflict';
 export type AttachmentStatus = 'Local' | 'Uploading' | 'Synced' | 'Failed';
+export type EntryMode = 'form' | 'text' | 'hybrid';
 
 export interface User {
   id: string;
@@ -35,6 +36,9 @@ export interface RecordItem {
   authorName: string;
   status: RecordStatus;
   data: Record<string, any>;
+  rawText?: string | null;
+  entryMode?: EntryMode;
+  textUpdatedAt?: string;
   version: number;
   isDraft: boolean;
   isLocked: boolean;
@@ -62,7 +66,7 @@ export interface AttachmentMeta {
 }
 
 export interface AttachmentBlobChunk {
-  id: string; // `${attachmentId}_chunk_${index}`
+  id: string;
   attachmentId: string;
   chunkIndex: number;
   totalChunks: number;
@@ -121,7 +125,7 @@ export interface AuditLog {
   userId: string;
   userName: string;
   vesselId: string;
-  action: 'LOGIN' | 'CREATE' | 'UPDATE' | 'SUBMIT' | 'SYNC' | 'DELETE' | 'BACKUP' | 'RESTORE' | 'RESOLVE_CONFLICT';
+  action: 'LOGIN' | 'CREATE' | 'UPDATE' | 'SUBMIT' | 'SYNC' | 'DELETE' | 'BACKUP' | 'RESTORE' | 'RESOLVE_CONFLICT' | 'SMART_FILL';
   targetEntity: string;
   entityId: string;
   details: string;
@@ -164,6 +168,15 @@ class SeaSyncClientDatabase extends Dexie {
       deviceInfo: 'id, registeredAt, lastSeenAt',
       auditLogs: 'id, timestamp, userId, vesselId, action',
       settings: 'id'
+    });
+
+    this.version(2).stores({
+      records: 'id, formType, status, vesselId, createdBy, clientUpdatedAt, serverUpdatedAt, version, isDraft, entryMode'
+    }).upgrade(tx => {
+      return tx.table('records').toCollection().modify(rec => {
+        if (!rec.entryMode) rec.entryMode = 'form';
+        if (rec.rawText === undefined) rec.rawText = null;
+      });
     });
   }
 }

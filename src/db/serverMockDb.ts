@@ -9,6 +9,9 @@ export interface ServerRecord {
   authorName: string;
   status: 'Synced';
   data: Record<string, any>;
+  rawText?: string | null;
+  entryMode?: 'form' | 'text' | 'hybrid';
+  textUpdatedAt?: string;
   version: number;
   serverCreatedAt: string;
   serverUpdatedAt: string;
@@ -33,7 +36,7 @@ export interface IdempotencyEntry {
   idempotencyKey: string;
   entityId: string;
   action: string;
-  responsePayload: string; // JSON
+  responsePayload: string;
   createdAt: string;
 }
 
@@ -60,6 +63,15 @@ class SeaSyncServerMockDatabase extends Dexie {
       serverAttachments: 'id, recordId, vesselId, checksum, serverUpdatedAt',
       idempotencyStore: 'idempotencyKey, entityId, createdAt',
       serverSyncHistory: 'id, timestamp, vesselId'
+    });
+
+    this.version(2).stores({
+      serverRecords: 'id, formType, vesselId, version, serverUpdatedAt, entryMode'
+    }).upgrade(tx => {
+      return tx.table('serverRecords').toCollection().modify(rec => {
+        if (!rec.entryMode) rec.entryMode = 'form';
+        if (rec.rawText === undefined) rec.rawText = null;
+      });
     });
   }
 }

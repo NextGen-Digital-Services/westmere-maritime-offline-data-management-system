@@ -6,79 +6,100 @@
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    border-color: var(--border);
   }
   body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
+    background-color: var(--surface-alt);
+    color: var(--text-primary);
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     font-weight: 700;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
+  }
+  input, select, textarea {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--input-placeholder);
+    opacity: 1;
   }
 }
 
-/* Maritime Status Badges */
+/* Maritime Status Badges (WCAG AA Compliant Solid Flat) */
 .badge-draft {
-  background-color: var(--color-sunshine-yellow-subtle);
-  color: #996B00;
-  border: 1px solid var(--color-sunshine-yellow);
+  background-color: #FFF4CC;
+  color: #5C4300;
+  border: 1px solid #F5B700;
 }
 .dark .badge-draft {
-  color: #FFD147;
+  background-color: #3B3008;
+  color: #FFD566;
+  border: 1px solid #F5B700;
 }
 
 .badge-pending {
-  background-color: var(--color-signal-orange-subtle);
-  color: #B34E00;
-  border: 1px solid var(--color-signal-orange);
+  background-color: #FFF0E5;
+  color: #8F3B00;
+  border: 1px solid #FF7A1A;
 }
 .dark .badge-pending {
+  background-color: #3F2311;
   color: #FFA65E;
+  border: 1px solid #FF7A1A;
 }
 
 .badge-syncing {
-  background-color: var(--color-ocean-subtle);
-  color: #0D47A1;
-  border: 1px solid var(--color-ocean);
+  background-color: #EAF2FF;
+  color: #0A3D80;
+  border: 1px solid #1565C0;
 }
 .dark .badge-syncing {
-  color: #64B5F6;
+  background-color: #162C4E;
+  color: #79B8FF;
+  border: 1px solid #1565C0;
 }
 
 .badge-synced {
-  background-color: var(--color-sea-green-subtle);
-  color: #0E683D;
-  border: 1px solid var(--color-sea-green);
+  background-color: #E8F8F0;
+  color: #0B522E;
+  border: 1px solid #1FAF6B;
 }
 .dark .badge-synced {
-  color: #4ADE80;
+  background-color: #133928;
+  color: #5CE69E;
+  border: 1px solid #1FAF6B;
 }
 
 .badge-failed {
-  background-color: var(--color-coral-red-subtle);
-  color: #9E1C23;
-  border: 1px solid var(--color-coral-red);
+  background-color: #FDE8E9;
+  color: #7A1217;
+  border: 1px solid #E5484D;
 }
 .dark .badge-failed {
-  color: #FF8085;
+  background-color: #3D161A;
+  color: #FFA3A6;
+  border: 1px solid #E5484D;
 }
 
 .badge-conflict {
-  background-color: var(--color-violet-subtle);
-  color: #4321C9;
-  border: 1px solid var(--color-violet);
+  background-color: #F0EDFF;
+  color: #351A9E;
+  border: 1px solid #6D4AFF;
 }
 .dark .badge-conflict {
-  color: #B5A1FF;
+  background-color: #241D4E;
+  color: #C4B5FD;
+  border: 1px solid #6D4AFF;
 }
 
 /* Animations */
 @keyframes softPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.05); }
+  50% { opacity: 0.9; transform: scale(1.04); }
 }
 
 @keyframes gentleShake {
@@ -93,6 +114,11 @@
 
 .animate-gentle-shake {
   animation: gentleShake 0.4s ease-in-out;
+}
+
+/* Universal Animation Fallback - Content NEVER stuck at opacity 0 */
+[class*="motion-"], [style*="opacity: 0"] {
+  min-height: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,4 @@
-import { clientDb, type RecordItem, type RecordStatus } from '../clientDb';
+import { clientDb, type RecordItem, type EntryMode } from '../clientDb';
 import { v4 as uuidv4 } from 'uuid';
 
 export const recordRepository = {
@@ -23,7 +23,10 @@ export const recordRepository = {
         record = {
           ...existing,
           title: data.title ?? existing.title,
-          data: data.data ?? existing.data,
+          data: data.data !== undefined ? data.data : existing.data,
+          rawText: data.rawText !== undefined ? data.rawText : existing.rawText,
+          entryMode: data.entryMode || existing.entryMode || 'form',
+          textUpdatedAt: data.rawText !== undefined ? now : existing.textUpdatedAt,
           clientUpdatedAt: now,
           isDraft: true
         };
@@ -41,6 +44,9 @@ export const recordRepository = {
       authorName: data.authorName,
       status: 'Draft',
       data: data.data || {},
+      rawText: data.rawText || null,
+      entryMode: data.entryMode || 'form',
+      textUpdatedAt: data.rawText ? now : undefined,
       version: 1,
       isDraft: true,
       isLocked: false,
@@ -91,7 +97,7 @@ export const recordRepository = {
       action: 'SUBMIT',
       targetEntity: 'RECORD',
       entityId: id,
-      details: `Submitted record "${existing.title}" (Version ${existing.version})`
+      details: `Submitted record "${existing.title}" (${existing.entryMode?.toUpperCase()} mode, Version ${existing.version})`
     });
 
     return updated;
@@ -118,7 +124,6 @@ export const recordRepository = {
     const existing = await clientDb.records.get(id);
     if (existing) {
       await clientDb.records.delete(id);
-      // Remove any pending queue items for this record
       await clientDb.syncQueue.where('entityId').equals(id).delete();
       
       await clientDb.auditLogs.add({

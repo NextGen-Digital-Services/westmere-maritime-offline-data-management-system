@@ -8,6 +8,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Semantic Tokens (WCAG AA Compliant)
+        primary: {
+          DEFAULT: 'var(--text-primary)',
+          muted: 'var(--text-muted)',
+          secondary: 'var(--text-secondary)'
+        },
+        surface: {
+          DEFAULT: 'var(--surface)',
+          alt: 'var(--surface-alt)',
+          border: 'var(--border)'
+        },
+        input: {
+          bg: 'var(--input-bg)',
+          text: 'var(--input-text)',
+          placeholder: 'var(--input-placeholder)'
+        },
+        // Section Accent Colors (Solid Flat Colors)
         navy: {
           DEFAULT: 'var(--color-navy)',
           dark: '#061729',
@@ -48,24 +65,29 @@ export default {
           dark: '#5836d9',
           subtle: 'var(--color-violet-subtle)'
         },
+        // Legacy Canvas compatibility (Text resolved to text-primary, never background!)
         canvas: {
-          DEFAULT: 'var(--color-bg)',
+          DEFAULT: 'var(--color-text)',      // Default text color is dark navy ink!
           card: 'var(--color-card-bg)',
           subtle: 'var(--color-bg-subtle)',
           border: 'var(--color-border)',
           text: 'var(--color-text)',
-          muted: 'var(--color-text-muted)'
+          muted: 'var(--color-text-muted)',
+          bg: 'var(--color-bg)'
         }
       },
       fontFamily: {
         heading: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
       },
       boxShadow: {
         'solid-sm': '0 1px 2px rgba(0,0,0,0.06)',
         'solid': '0 2px 4px rgba(0,0,0,0.08)',
         'solid-md': '0 4px 8px rgba(0,0,0,0.12)',
         'solid-lg': '0 8px 16px rgba(0,0,0,0.16)',
+        'accent-blue': '0 2px 8px rgba(21, 101, 192, 0.25)',
+        'accent-orange': '0 2px 8px rgba(255, 122, 26, 0.25)',
       }
     },
   },

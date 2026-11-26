@@ -373,5 +373,50 @@ export const MARINE_TEMPLATES: Record<string, FormTemplate> = {
         ]
       }
     ]
+  },
+
+  free_text: {
+    id: 'free_text',
+    title: 'Free Text Report',
+    description: 'Free-form plain text operational log, voyage narrative, port note, or master handover statement.',
+    category: 'Commercial',
+    icon: 'FileText',
+    sections: [
+      {
+        title: 'Report Classification & Details',
+        fields: [
+          { id: 'reportTitle', label: 'Report Subject / Title', type: 'text', placeholder: 'e.g. Master Handover Briefing - Malacca Strait', required: true, colSpan: 1 },
+          {
+            id: 'category',
+            label: 'Report Category',
+            type: 'select',
+            required: true,
+            options: [
+              { label: 'Daily Narrative Log', value: 'Daily Narrative' },
+              { label: 'Watch Handover Note', value: 'Handover Note' },
+              { label: 'Master Remarks to Owners', value: 'Master Remarks' },
+              { label: 'Port Agency & Cargo Note', value: 'Port Note' },
+              { label: 'General Operational Statement', value: 'General' }
+            ],
+            colSpan: 1
+          },
+          { id: 'reportDate', label: 'Date & Time', type: 'date', required: true, colSpan: 1 },
+          {
+            id: 'priority',
+            label: 'Message Priority',
+            type: 'select',
+            required: true,
+            options: [
+              { label: 'Routine Advisory', value: 'Routine' },
+              { label: 'Urgent Operational Notice', value: 'Urgent' },
+              { label: 'Master Signed Statement', value: 'Master Certified' }
+            ],
+            colSpan: 1
+          },
+          { id: 'tags', label: 'Keywords / Reference Tags', type: 'text', placeholder: 'e.g. NAVIGATION, BUNKER, PSC_INSPECTION', colSpan: 2 },
+          { id: 'bodyText', label: 'Report Narrative Body (Plain Text)', type: 'textarea', placeholder: 'Enter complete free-form report, telex message, or handover narrative...', required: true, colSpan: 2 }
+        ]
+      }
+    ]
   }
 };

@@ -79,6 +79,9 @@ export class MockServer {
       authorName: record.authorName,
       status: 'Synced',
       data: record.data,
+      rawText: record.rawText || null,
+      entryMode: record.entryMode || 'form',
+      textUpdatedAt: record.textUpdatedAt || now,
       version: newVersion,
       serverCreatedAt: record.clientCreatedAt || now,
       serverUpdatedAt: now

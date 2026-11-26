@@ -1,8 +1,15 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { type FormTemplate, type FormField } from './types';
 import { CoordinatesField } from './fields/CoordinatesField';
 import { SignatureField } from './fields/SignatureField';
+import { TextInput } from '../components/ui/form/TextInput';
+import { SelectInput } from '../components/ui/form/SelectInput';
+import { TextareaInput } from '../components/ui/form/TextareaInput';
+import { DatePickerInput } from '../components/ui/form/DatePickerInput';
+import { NumberWithUnitInput } from '../components/ui/form/NumberWithUnitInput';
+import { CheckboxInput } from '../components/ui/form/CheckboxInput';
+import { type SectionAccent, ACCENT_COLOR_MAP } from '../components/ui/form/FormFieldWrapper';
 import { CheckCircle2, Clock, Lock, Send, RotateCcw } from 'lucide-react';
 
 interface FormRendererProps {
@@ -12,6 +19,16 @@ interface FormRendererProps {
   onAutosave?: (data: Record<string, any>) => void;
   onSubmit?: (data: Record<string, any>) => void;
   onReopen?: () => void;
+}
+
+export function getSectionAccent(category: string, title: string): SectionAccent {
+  const lower = `${category} ${title}`.toLowerCase();
+  if (lower.includes('meteo') || lower.includes('weather') || lower.includes('sea')) return 'teal';
+  if (lower.includes('engine') || lower.includes('bunker') || lower.includes('fuel') || lower.includes('sounding')) return 'orange';
+  if (lower.includes('cargo') || lower.includes('commercial')) return 'violet';
+  if (lower.includes('safety') || lower.includes('drill') || lower.includes('incident')) return 'coral';
+  if (lower.includes('crew') || lower.includes('admin') || lower.includes('watch')) return 'green';
+  return 'ocean';
 }
 
 export const FormRenderer: React.FC<FormRendererProps> = ({
@@ -29,7 +46,6 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const debounceTimer = useRef<number | null>(null);
-
   const watchedValues = watch();
 
   const handleFieldChange = useCallback((currentData: Record<string, any>) => {
@@ -48,17 +64,34 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
     handleFieldChange(watchedValues);
   }, [watchedValues, handleFieldChange]);
 
-  const renderField = (field: FormField) => {
+  // Completion calculation
+  const { totalRequired, completedRequired, percentComplete } = useMemo(() => {
+    let reqCount = 0;
+    let filledCount = 0;
+    template.sections.forEach(s => {
+      s.fields.forEach(f => {
+        if (f.required) {
+          reqCount++;
+          const val = watchedValues[f.id];
+          if (val !== undefined && val !== null && String(val).trim() !== '') {
+            filledCount++;
+          }
+        }
+      });
+    });
+    const pct = reqCount > 0 ? Math.round((filledCount / reqCount) * 100) : 100;
+    return { totalRequired: reqCount, completedRequired: filledCount, percentComplete: pct };
+  }, [template, watchedValues]);
+
+  const renderField = (field: FormField, accent: SectionAccent) => {
     return (
       <div key={field.id} className={field.colSpan === 2 ? 'col-span-1 md:col-span-2' : 'col-span-1'}>
-        <label className="block text-xs font-semibold text-canvas-muted mb-1">
-          {field.label} {field.required && <span className="text-coralRed">*</span>}
-        </label>
         <Controller
           name={field.id}
           control={control}
           rules={{ required: field.required ? `${field.label} is mandatory` : false }}
-          render={({ field: f }) => {
+          render={({ field: f, fieldState }) => {
+            const err = fieldState.error?.message;
             if (field.type === 'coordinates') {
               return <CoordinatesField value={f.value} onChange={f.onChange} disabled={isLocked} required={field.required} />;
             }
@@ -66,128 +99,95 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
               return <SignatureField value={f.value} onChange={f.onChange} disabled={isLocked} required={field.required} />;
             }
             if (field.type === 'textarea') {
-              return (
-                <textarea
-                  {...f}
-                  disabled={isLocked}
-                  placeholder={field.placeholder}
-                  rows={3}
-                  className="w-full px-3 py-2 text-sm bg-canvas border rounded focus:outline-none focus:border-ocean disabled:opacity-60"
-                />
-              );
+              return <TextareaInput {...f} label={field.label} required={field.required} placeholder={field.placeholder} disabled={isLocked} accent={accent} error={err} />;
             }
             if (field.type === 'select') {
-              return (
-                <select
-                  {...f}
-                  disabled={isLocked}
-                  className="w-full px-3 py-2 text-sm bg-canvas border rounded focus:outline-none focus:border-ocean disabled:opacity-60"
-                >
-                  <option value="">-- Select {field.label} --</option>
-                  {field.options?.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              );
+              return <SelectInput {...f} label={field.label} required={field.required} options={field.options || []} disabled={isLocked} accent={accent} error={err} />;
             }
             if (field.type === 'checkbox') {
-              return (
-                <label className="flex items-center space-x-2 py-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={!!f.value}
-                    disabled={isLocked}
-                    onChange={e => f.onChange(e.target.checked)}
-                    className="w-4 h-4 text-ocean rounded border-gray-300 focus:ring-ocean"
-                  />
-                  <span className="text-sm font-medium">{field.placeholder || field.label}</span>
-                </label>
-              );
+              return <CheckboxInput checked={!!f.value} onChange={e => f.onChange(e.target.checked)} label={field.placeholder || field.label} disabled={isLocked} accent={accent} />;
             }
-            return (
-              <div className="relative">
-                <input
-                  type={field.type}
-                  {...f}
-                  disabled={isLocked}
-                  placeholder={field.placeholder}
-                  min={field.min}
-                  max={field.max}
-                  step={field.step}
-                  className="w-full px-3 py-2 text-sm bg-canvas border rounded focus:outline-none focus:border-ocean disabled:opacity-60"
-                />
-                {field.unit && (
-                  <span className="absolute right-3 top-2 text-xs text-canvas-muted font-medium pointer-events-none">
-                    {field.unit}
-                  </span>
-                )}
-              </div>
-            );
+            if (field.type === 'date') {
+              return <DatePickerInput {...f} label={field.label} required={field.required} disabled={isLocked} accent={accent} error={err} />;
+            }
+            if (field.unit) {
+              return <NumberWithUnitInput {...f} label={field.label} required={field.required} unit={field.unit} min={field.min} max={field.max} step={field.step} disabled={isLocked} accent={accent} error={err} />;
+            }
+            return <TextInput {...f} type={field.type} label={field.label} required={field.required} placeholder={field.placeholder} disabled={isLocked} accent={accent} error={err} />;
           }}
         />
-        {errors[field.id] && (
-          <p className="text-xs text-coralRed mt-1 font-medium">{errors[field.id]?.message as string}</p>
-        )}
       </div>
     );
   };
 
   return (
     <form onSubmit={handleSubmit(data => onSubmit?.(data))} className="space-y-6">
-      <div className="flex items-center justify-between pb-3 border-b border-canvas-border">
-        <div className="flex items-center space-x-2 text-xs">
-          {isLocked ? (
-            <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded bg-seaGreen-subtle text-seaGreen font-semibold border border-seaGreen">
-              <Lock className="w-3.5 h-3.5" />
-              <span>Record Locked (Submitted)</span>
+      {/* Dynamic Form Completion Progress Bar */}
+      <div className="bg-surface border border-border rounded-lg p-3 shadow-solid-sm space-y-1.5">
+        <div className="flex items-center justify-between text-xs font-bold text-primary">
+          <div className="flex items-center space-x-2">
+            <span>Required Fields Progress:</span>
+            <span className={percentComplete === 100 ? 'text-seaGreen' : percentComplete > 50 ? 'text-sunshineYellow-dark' : 'text-signalOrange'}>
+              {completedRequired} of {totalRequired} complete ({percentComplete}%)
             </span>
-          ) : isSaving ? (
-            <span className="inline-flex items-center space-x-1.5 text-signalOrange font-medium">
-              <Clock className="w-3.5 h-3.5 animate-spin" />
-              <span>Autosaving draft...</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center space-x-1.5 text-seaGreen font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Saved locally {lastSavedAt ? `at ${lastSavedAt}` : 'in IndexedDB'}</span>
-            </span>
-          )}
+          </div>
+          <div>
+            {isLocked ? (
+              <span className="text-seaGreen font-bold flex items-center space-x-1"><Lock className="w-3.5 h-3.5" /><span>Submitted</span></span>
+            ) : isSaving ? (
+              <span className="text-signalOrange font-semibold flex items-center space-x-1"><Clock className="w-3.5 h-3.5 animate-spin" /><span>Autosaving...</span></span>
+            ) : (
+              <span className="text-seaGreen font-semibold flex items-center space-x-1"><CheckCircle2 className="w-3.5 h-3.5" /><span>Saved {lastSavedAt ? `at ${lastSavedAt}` : 'locally'}</span></span>
+            )}
+          </div>
         </div>
+        <div className="w-full bg-surface-alt h-2 rounded-full overflow-hidden border border-border">
+          <div
+            className={`h-full transition-all duration-300 ${percentComplete === 100 ? 'bg-seaGreen' : percentComplete > 50 ? 'bg-sunshineYellow' : 'bg-signalOrange'}`}
+            style={{ width: `${percentComplete}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Sections with Dedicated Accent Header Bars */}
+      {template.sections.map((section, idx) => {
+        const accent = getSectionAccent(template.category, section.title);
+        const accentCfg = ACCENT_COLOR_MAP[accent] || ACCENT_COLOR_MAP.ocean;
+
+        return (
+          <div key={idx} className="bg-surface border border-border rounded-lg shadow-solid-sm overflow-hidden">
+            <div className={`px-4 py-2.5 font-bold text-xs uppercase tracking-wider flex items-center justify-between ${accentCfg.headerBar}`}>
+              <span>{section.title}</span>
+            </div>
+            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {section.fields.map(f => renderField(f, accent))}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Action Footer */}
+      <div className="flex items-center justify-between pt-2">
         {isLocked && onReopen && (
           <button
             type="button"
             onClick={onReopen}
-            className="flex items-center space-x-1 px-3 py-1 text-xs bg-canvas-subtle border rounded hover:bg-canvas font-semibold"
+            className="flex items-center space-x-1 px-4 py-2 bg-surface border-2 border-ocean rounded text-xs font-bold text-primary hover:bg-ocean-subtle"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4 text-ocean" />
             <span>Reopen for Amendment</span>
           </button>
         )}
-      </div>
-
-      {template.sections.map((section, idx) => (
-        <div key={idx} className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-4">
-          <div className="border-b pb-2">
-            <h3 className="text-base font-bold text-navy dark:text-canvas">{section.title}</h3>
-            {section.description && <p className="text-xs text-canvas-muted mt-0.5">{section.description}</p>}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {section.fields.map(renderField)}
-          </div>
-        </div>
-      ))}
-
-      {!isLocked && onSubmit && (
-        <div className="flex justify-end pt-4">
+        {!isLocked && onSubmit && (
           <button
             type="submit"
-            className="flex items-center space-x-2 px-6 py-2.5 bg-signalOrange hover:bg-signalOrange-dark text-white rounded font-bold shadow-solid transition-all"
+            className="ml-auto flex items-center space-x-2 px-6 py-2.5 bg-signalOrange hover:bg-signalOrange-dark text-white rounded font-bold shadow-solid transition-all"
           >
             <Send className="w-4 h-4" />
             <span>Submit to Pending Sync</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </form>
   );
 };

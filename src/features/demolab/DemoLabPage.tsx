@@ -7,7 +7,7 @@ import { useNotificationStore } from '../../store/notificationStore';
 import { v4 as uuidv4 } from 'uuid';
 import {
   FlaskConical, WifiOff, Wifi, AlertTriangle, Bug,
-  FilePlus, Paperclip, Zap, Trash2, ShieldCheck, Terminal
+  FilePlus, Paperclip, Zap, Trash2, Terminal, FileText
 } from 'lucide-react';
 
 export const DemoLabPage: React.FC = () => {
@@ -28,7 +28,7 @@ export const DemoLabPage: React.FC = () => {
     setIsGenerating(true);
     addEvent('Generating 20 sample operational records...', 'info');
 
-    const types = ['noon_report', 'daily_ops', 'bunker_report', 'engine_log', 'safety_drill'];
+    const types = ['noon_report', 'free_text', 'daily_ops', 'bunker_report', 'engine_log'];
     const now = Date.now();
     const newRecords: RecordItem[] = [];
 
@@ -44,6 +44,8 @@ export const DemoLabPage: React.FC = () => {
         authorName: 'Chief Mate Lindholm',
         status: 'Pending Sync',
         version: 1,
+        entryMode: i % 2 === 0 ? 'text' : 'form',
+        rawText: `Simulated raw narrative entry #${i} created for offline batch tests.`,
         isDraft: false,
         isLocked: true,
         clientCreatedAt: new Date(now - i * 60000).toISOString(),
@@ -56,7 +58,6 @@ export const DemoLabPage: React.FC = () => {
         }
       });
 
-      // Enqueue in sync queue
       await clientDb.syncQueue.put({
         id: `queue-${uuidv4().substring(0, 8)}`,
         type: 'RECORD',
@@ -77,7 +78,6 @@ export const DemoLabPage: React.FC = () => {
   };
 
   const handleCreateConflict = async () => {
-    // Modify an existing record in serverMockDb to create version skew
     const serverRecords = await serverMockDb.serverRecords.toArray();
     if (serverRecords.length === 0) {
       alert('No server records available to create conflict.');
@@ -93,7 +93,6 @@ export const DemoLabPage: React.FC = () => {
       }
     });
 
-    // Make local record modified too
     await clientDb.records.update(target.id, {
       status: 'Conflict',
       clientUpdatedAt: new Date().toISOString()
@@ -103,11 +102,31 @@ export const DemoLabPage: React.FC = () => {
     showToast('Conflict Injected', `Record "${target.title}" now has a version collision. Check Conflict Resolver.`, 'warning');
   };
 
+  const handleCreateTextConflict = async () => {
+    const serverRecords = await serverMockDb.serverRecords.toArray();
+    if (serverRecords.length === 0) return;
+    const target = serverRecords[0];
+
+    await serverMockDb.serverRecords.update(target.id, {
+      version: target.version + 1,
+      rawText: `[SHORE DISPATCH AMENDMENT]:\nCourse altered to 255 deg due to heavy traffic separation zone.\nSpeed ordered reduced to 12.0 kts.`,
+      serverUpdatedAt: new Date().toISOString()
+    });
+
+    await clientDb.records.update(target.id, {
+      status: 'Conflict',
+      rawText: `[VESSEL LOCAL NARRATIVE]:\nMaintaining course 242 deg in optimal sea state.\nPropulsion operating at normal continuous rating (14.8 kts).`,
+      clientUpdatedAt: new Date().toISOString()
+    });
+
+    addEvent(`Narrative text conflict injected on "${target.title}".`, 'warning');
+    showToast('Text Conflict Triggered', `Check Conflict Resolver for side-by-side text diff.`, 'warning');
+  };
+
   const handleAddLargeAttachment = async () => {
-    // Generate a 1MB simulated blob (4 chunks of 256KB)
     const size = 1024 * 1024; // 1 MB
     const dummyBytes = new Uint8Array(size);
-    dummyBytes.fill(65); // 'A'
+    dummyBytes.fill(65);
     const file = new File([dummyBytes], `Engine_Overhaul_Manual_${Date.now().toString().slice(-4)}.pdf`, {
       type: 'application/pdf'
     });
@@ -119,12 +138,12 @@ export const DemoLabPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-signalOrange-subtle border border-signalOrange p-4 rounded-lg flex items-center justify-between">
+      <div className="bg-signalOrange-subtle border-2 border-signalOrange p-4 rounded-lg flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <FlaskConical className="w-6 h-6 text-signalOrange flex-shrink-0" />
           <div>
-            <h1 className="text-base font-bold text-navy dark:text-canvas">Demo Control Lab & Acceptance Test Rig</h1>
-            <p className="text-xs text-canvas-muted mt-0.5">
+            <h1 className="text-base font-bold text-primary">Demo Control Lab & Acceptance Test Rig</h1>
+            <p className="text-xs text-secondary mt-0.5 font-medium">
               Interactive test bench to simulate at-sea disconnects, satellite jitter, and server faults live.
             </p>
           </div>
@@ -134,16 +153,16 @@ export const DemoLabPage: React.FC = () => {
       {/* Control Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {/* Simulate Offline */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-3">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-xs uppercase text-canvas-muted">Satellite Uplink State</span>
+            <span className="font-bold text-xs uppercase text-secondary">Satellite Uplink State</span>
             {controls.simulateOffline ? <WifiOff className="w-5 h-5 text-coralRed" /> : <Wifi className="w-5 h-5 text-seaGreen" />}
           </div>
-          <p className="text-xs text-canvas-muted">Forces the whole PWA into zero-network offline mode.</p>
+          <p className="text-xs text-secondary">Forces the whole PWA into zero-network offline mode.</p>
           <button
             onClick={() => setSimulateOffline(!controls.simulateOffline)}
             className={`w-full py-2.5 rounded font-bold text-xs shadow-solid transition-colors ${
-              controls.simulateOffline ? 'bg-coralRed text-white' : 'bg-seaGreen hover:bg-seaGreen-dark text-white'
+              controls.simulateOffline ? 'bg-coralRed text-white hover:bg-coralRed-dark' : 'bg-seaGreen hover:bg-seaGreen-dark text-white'
             }`}
           >
             {controls.simulateOffline ? 'Disable Simulation (Bring Online)' : 'Simulate Mid-Ocean Offline'}
@@ -151,19 +170,21 @@ export const DemoLabPage: React.FC = () => {
         </div>
 
         {/* Network Quality Simulator */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-3">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-xs uppercase text-canvas-muted">Network Quality & Jitter</span>
+            <span className="font-bold text-xs uppercase text-secondary">Network Quality & Jitter</span>
             <Zap className="w-5 h-5 text-teal" />
           </div>
-          <p className="text-xs text-canvas-muted">Simulates Starlink/FleetBroadband satellite latency profiles.</p>
+          <p className="text-xs text-secondary">Simulates Starlink/FleetBroadband satellite latency profiles.</p>
           <div className="grid grid-cols-3 gap-2">
             {(['fast', 'slow', 'flaky'] as const).map(q => (
               <button
                 key={q}
                 onClick={() => setNetworkQuality(q)}
-                className={`py-2 rounded text-xs font-bold capitalize border transition-colors ${
-                  controls.networkQuality === q ? 'bg-navy text-white dark:bg-canvas dark:text-navy' : 'bg-canvas-subtle hover:bg-canvas'
+                className={`py-2 rounded text-xs font-bold capitalize border-2 transition-all ${
+                  controls.networkQuality === q
+                    ? 'bg-navy text-white border-navy shadow-solid'
+                    : 'bg-surface text-primary border-border hover:bg-surface-alt'
                 }`}
               >
                 {q}
@@ -173,24 +194,24 @@ export const DemoLabPage: React.FC = () => {
         </div>
 
         {/* Error & Interrupt Injection */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-3">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-xs uppercase text-canvas-muted">Fault Injection</span>
+            <span className="font-bold text-xs uppercase text-secondary">Fault Injection</span>
             <Bug className="w-5 h-5 text-coralRed" />
           </div>
-          <p className="text-xs text-canvas-muted">Inject 500 error or interrupt chunk transfer mid-flight.</p>
+          <p className="text-xs text-secondary">Inject 500 error or interrupt chunk transfer mid-flight.</p>
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setForceServerError(!controls.forceServerError)}
-              className={`py-2 px-2 text-[11px] font-bold rounded border transition-colors ${
-                controls.forceServerError ? 'bg-coralRed text-white' : 'bg-canvas-subtle'
+              className={`py-2 px-2 text-[11px] font-bold rounded border-2 transition-colors ${
+                controls.forceServerError ? 'bg-coralRed text-white border-coralRed' : 'bg-surface text-primary border-border hover:bg-surface-alt'
               }`}
             >
               {controls.forceServerError ? '500 Error ON' : 'Inject 500 Error'}
             </button>
             <button
               onClick={() => setInterruptNextUpload(true)}
-              className="py-2 px-2 text-[11px] font-bold rounded bg-sunshineYellow text-navy hover:bg-sunshineYellow-dark"
+              className="py-2 px-2 text-[11px] font-bold rounded bg-sunshineYellow text-navy hover:bg-sunshineYellow-dark shadow-solid"
             >
               Interrupt Upload
             </button>
@@ -198,16 +219,16 @@ export const DemoLabPage: React.FC = () => {
         </div>
 
         {/* Data Generation Tools */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-3 md:col-span-2 lg:col-span-3">
-          <span className="font-bold text-xs uppercase text-canvas-muted block">Client Demo Data Generators</span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-3 md:col-span-2 lg:col-span-3">
+          <span className="font-bold text-xs uppercase text-secondary block">Client Demo Data Generators</span>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <button
               onClick={handleGenerate20Records}
               disabled={isGenerating}
               className="flex items-center justify-center space-x-2 py-2.5 bg-ocean hover:bg-ocean-hover text-white rounded text-xs font-bold shadow-solid transition-colors disabled:opacity-50"
             >
               <FilePlus className="w-4 h-4" />
-              <span>Create 20 Sample Records</span>
+              <span>Create 20 Records</span>
             </button>
 
             <button
@@ -215,7 +236,7 @@ export const DemoLabPage: React.FC = () => {
               className="flex items-center justify-center space-x-2 py-2.5 bg-violet hover:bg-violet-dark text-white rounded text-xs font-bold shadow-solid transition-colors"
             >
               <Paperclip className="w-4 h-4" />
-              <span>Add 1 MB Chunked Attachment</span>
+              <span>Add 1 MB File</span>
             </button>
 
             <button
@@ -223,33 +244,41 @@ export const DemoLabPage: React.FC = () => {
               className="flex items-center justify-center space-x-2 py-2.5 bg-signalOrange hover:bg-signalOrange-dark text-white rounded text-xs font-bold shadow-solid transition-colors"
             >
               <AlertTriangle className="w-4 h-4" />
-              <span>Trigger Version Conflict</span>
+              <span>Trigger Field Conflict</span>
+            </button>
+
+            <button
+              onClick={handleCreateTextConflict}
+              className="flex items-center justify-center space-x-2 py-2.5 bg-teal hover:bg-teal-dark text-white rounded text-xs font-bold shadow-solid transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Trigger Text Conflict</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Real-Time Live Sync Trace Log */}
-      <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-3">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center space-x-2 font-bold text-xs text-navy dark:text-canvas">
+      <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <div className="flex items-center space-x-2 font-bold text-xs text-primary">
             <Terminal className="w-4 h-4 text-teal" />
             <span>Live Sync Engine Event Stream</span>
           </div>
-          <button onClick={clearEvents} className="text-xs text-canvas-muted hover:text-coralRed flex items-center space-x-1">
+          <button onClick={clearEvents} className="text-xs text-secondary hover:text-coralRed flex items-center space-x-1 font-bold">
             <Trash2 className="w-3.5 h-3.5" />
             <span>Clear Log</span>
           </button>
         </div>
 
-        <div className="bg-navy font-mono text-[11px] text-canvas-subtle p-3 rounded h-52 overflow-y-auto space-y-1">
+        <div className="bg-navy font-mono text-[11px] text-white p-3.5 rounded h-52 overflow-y-auto space-y-1.5 border border-navy-light">
           {events.map(ev => (
             <div key={ev.id} className="flex items-start space-x-2">
-              <span className="text-canvas-muted whitespace-nowrap">[{ev.timestamp}]</span>
+              <span className="text-slate-400 whitespace-nowrap">[{ev.timestamp}]</span>
               <span className={
-                ev.type === 'success' ? 'text-seaGreen' :
+                ev.type === 'success' ? 'text-seaGreen font-bold' :
                 ev.type === 'error' ? 'text-coralRed font-bold' :
-                ev.type === 'warning' ? 'text-signalOrange' : 'text-teal'
+                ev.type === 'warning' ? 'text-signalOrange font-semibold' : 'text-teal'
               }>
                 {ev.message}
               </span>

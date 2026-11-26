@@ -45,58 +45,70 @@ export const DashboardCharts: React.FC<ChartProps> = ({ statusCounts }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Records Activity Bar Chart */}
-      <div className="bg-canvas-card border rounded-lg p-4 shadow-solid-sm">
-        <h3 className="text-xs font-bold text-navy dark:text-canvas mb-1">Records Created (Last 7 Days)</h3>
-        <p className="text-[11px] text-canvas-muted mb-3">Daily log output across deck and engine</p>
-        <div className="h-44 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={barData}>
-              <XAxis dataKey="day" stroke="#5F6B7C" fontSize={11} tickLine={false} />
-              <YAxis stroke="#5F6B7C" fontSize={11} tickLine={false} />
-              <Tooltip />
-              <Bar dataKey="records" fill="#1565C0" radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+      <div className="bg-surface border border-border rounded-lg shadow-solid-sm overflow-hidden flex flex-col">
+        <div className="bg-ocean text-white px-3.5 py-2 font-bold text-xs uppercase tracking-wide flex items-center justify-between">
+          <span>Records Created (7 Days)</span>
+        </div>
+        <div className="p-3.5 flex-1 flex flex-col justify-between">
+          <p className="text-[11px] text-muted mb-2 font-medium">Daily log output across deck and engine</p>
+          <div className="h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData}>
+                <XAxis dataKey="day" stroke="#3B4B66" fontSize={11} tickLine={false} />
+                <YAxis stroke="#3B4B66" fontSize={11} tickLine={false} />
+                <Tooltip />
+                <Bar dataKey="records" fill="#1565C0" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Status Breakdown Donut Chart */}
-      <div className="bg-canvas-card border rounded-lg p-4 shadow-solid-sm">
-        <h3 className="text-xs font-bold text-navy dark:text-canvas mb-1">Record Status Distribution</h3>
-        <p className="text-[11px] text-canvas-muted mb-3">Local Dexie storage allocation by lifecycle</p>
-        <div className="h-44 w-full flex items-center justify-center">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                innerRadius={38}
-                outerRadius={65}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+      <div className="bg-surface border border-border rounded-lg shadow-solid-sm overflow-hidden flex flex-col">
+        <div className="bg-teal text-white px-3.5 py-2 font-bold text-xs uppercase tracking-wide flex items-center justify-between">
+          <span>Lifecycle Distribution</span>
+        </div>
+        <div className="p-3.5 flex-1 flex flex-col justify-between">
+          <p className="text-[11px] text-muted mb-2 font-medium">Local Dexie storage allocation by status</p>
+          <div className="h-44 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  innerRadius={38}
+                  outerRadius={65}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Sync Success Rate Trend Line */}
-      <div className="bg-canvas-card border rounded-lg p-4 shadow-solid-sm">
-        <h3 className="text-xs font-bold text-navy dark:text-canvas mb-1">Uplink Success Trend (%)</h3>
-        <p className="text-[11px] text-canvas-muted mb-3">Satellite transmission acknowledgement rate</p>
-        <div className="h-44 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trendData}>
-              <XAxis dataKey="time" stroke="#5F6B7C" fontSize={11} tickLine={false} />
-              <YAxis stroke="#5F6B7C" fontSize={11} domain={[60, 100]} tickLine={false} />
-              <Tooltip />
-              <Line type="monotone" dataKey="successRate" stroke="#1FAF6B" strokeWidth={2.5} dot={{ r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="bg-surface border border-border rounded-lg shadow-solid-sm overflow-hidden flex flex-col">
+        <div className="bg-seaGreen text-white px-3.5 py-2 font-bold text-xs uppercase tracking-wide flex items-center justify-between">
+          <span>Uplink Success Trend</span>
+        </div>
+        <div className="p-3.5 flex-1 flex flex-col justify-between">
+          <p className="text-[11px] text-muted mb-2 font-medium">Satellite transmission acknowledgement rate</p>
+          <div className="h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendData}>
+                <XAxis dataKey="time" stroke="#3B4B66" fontSize={11} tickLine={false} />
+                <YAxis stroke="#3B4B66" fontSize={11} domain={[60, 100]} tickLine={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="successRate" stroke="#1FAF6B" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

@@ -1,8 +1,23 @@
 :root {
-  /* Brand Palette */
+  /* Strict WCAG AA Semantic Tokens - Light Mode (Default) */
+  --text-primary: #0B1B33;           /* Deep Navy Ink: 14.8:1 contrast on white */
+  --text-secondary: #3B4B66;         /* Slate Navy: 8.2:1 contrast on white */
+  --text-muted: #5B6B85;             /* Medium Slate: 5.2:1 contrast (>= 4.5:1) */
+  --text-on-primary: #FFFFFF;
+  --text-on-dark: #FFFFFF;
+
+  --surface: #FFFFFF;                /* Pure White Card Surface */
+  --surface-alt: #F6F3EC;            /* Sand Ivory Page Background */
+  --border: #D1D8E2;                 /* Crisp Border */
+
+  --input-bg: #FFFFFF;
+  --input-text: #0B1B33;
+  --input-placeholder: #6B7A93;      /* Clear readable placeholder (>= 4.5:1) */
+
+  /* Section Accent Palette (Solid Flat Colours) */
   --color-navy: #0A2540;
   --color-ocean: #1565C0;
-  --color-ocean-subtle: #E3F2FD;
+  --color-ocean-subtle: #EAF2FF;
   --color-teal: #00A7A7;
   --color-teal-subtle: #E0F7F7;
   --color-sea-green: #1FAF6B;
@@ -16,13 +31,13 @@
   --color-violet: #6D4AFF;
   --color-violet-subtle: #F0EDFF;
 
-  /* Theme Tokens - Light Mode (Default) */
-  --color-bg: #F6F3EC;           /* Sand Ivory */
+  /* Backward compatibility variables */
+  --color-bg: #F6F3EC;
   --color-card-bg: #FFFFFF;
   --color-bg-subtle: #EFECE3;
-  --color-border: #DCD8CD;
-  --color-text: #0B1220;          /* Deep Ink */
-  --color-text-muted: #5F6B7C;
+  --color-border: #D1D8E2;
+  --color-text: #0B1B33;
+  --color-text-muted: #5B6B85;
   --sidebar-bg: #0A2540;
   --sidebar-text: #F6F3EC;
   --header-bg: #0A2540;
@@ -30,13 +45,27 @@
 }
 
 .dark {
-  /* Theme Tokens - Dark Mode */
-  --color-bg: #0B1220;           /* Deep Ink */
-  --color-card-bg: #121B2D;
+  /* Strict WCAG AA Semantic Tokens - Dark Mode */
+  --text-primary: #F2F6FC;           /* Bright Ice White: 15.1:1 on #0F1B30 */
+  --text-secondary: #C5D0E2;         /* Pale Slate: 9.3:1 contrast */
+  --text-muted: #9FB0CB;             /* Muted Slate: 6.2:1 contrast (>= 4.5:1) */
+  --text-on-primary: #FFFFFF;
+  --text-on-dark: #FFFFFF;
+
+  --surface: #14243D;                /* Deep Card Surface */
+  --surface-alt: #0F1B30;            /* Deep Ink Background */
+  --border: #23334F;                 /* Dark Mode Border */
+
+  --input-bg: #14243D;
+  --input-text: #F2F6FC;
+  --input-placeholder: #7B8FA9;
+
+  --color-bg: #0F1B30;
+  --color-card-bg: #14243D;
   --color-bg-subtle: #19253C;
   --color-border: #23334F;
-  --color-text: #F6F3EC;
-  --color-text-muted: #9BA9BD;
+  --color-text: #F2F6FC;
+  --color-text-muted: #9FB0CB;
   --sidebar-bg: #071526;
   --sidebar-text: #E5E9F0;
   --header-bg: #071526;

@@ -6,13 +6,15 @@ export function exportRecordsToExcel(records: RecordItem[], filename = 'SeaSync_
     'Record ID': r.id,
     'Title': r.title,
     'Form Type': r.formType,
+    'Entry Mode': r.entryMode || 'form',
     'Status': r.status,
     'Version': r.version,
     'Author': r.authorName,
     'Vessel ID': r.vesselId,
     'Created (Local)': r.clientCreatedAt,
     'Updated (Local)': r.clientUpdatedAt,
-    'Synced (Server)': r.serverUpdatedAt || 'Unsynced'
+    'Synced (Server)': r.serverUpdatedAt || 'Unsynced',
+    'Raw Text Narrative': r.rawText || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);

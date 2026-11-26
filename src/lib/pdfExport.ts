@@ -19,7 +19,7 @@ export function exportRecordToPdf(record: RecordItem, vesselName: string = 'MV W
   doc.text(`WESTMERE FLEET MANAGEMENT SYSTEM | ${vesselName}`, 14, 22);
 
   // Metadata Card
-  doc.setTextColor(11, 18, 32);
+  doc.setTextColor(11, 27, 51);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text(`Record ID: ${record.id}`, 14, 40);
@@ -27,7 +27,7 @@ export function exportRecordToPdf(record: RecordItem, vesselName: string = 'MV W
   doc.text(`Status: ${record.status}`, 14, 52);
 
   doc.text(`Author: ${record.authorName || 'Bridge Officer'}`, 120, 40);
-  doc.text(`Version: ${record.version}`, 120, 46);
+  doc.text(`Version: v${record.version} (${record.entryMode === 'text' ? 'Text Mode' : 'Form Mode'})`, 120, 46);
   doc.text(`Date: ${record.clientCreatedAt?.split('T')[0] || 'N/A'}`, 120, 52);
 
   // Divider Line
@@ -67,6 +67,34 @@ export function exportRecordToPdf(record: RecordItem, vesselName: string = 'MV W
       doc.text(valueStr, 90, currentY);
 
       currentY += 7;
+    });
+  }
+
+  // Raw Text Narrative Section
+  if (record.rawText) {
+    currentY += 10;
+    if (currentY > 240) {
+      doc.addPage();
+      currentY = 20;
+    }
+    doc.setFontSize(11);
+    doc.setTextColor(21, 101, 192); // Ocean Blue
+    doc.setFont('helvetica', 'bold');
+    doc.text('Raw Text Narrative / Operational Log Body', 14, currentY);
+    currentY += 6;
+
+    doc.setFontSize(8.5);
+    doc.setFont('courier', 'normal');
+    doc.setTextColor(11, 27, 51);
+
+    const splitText = doc.splitTextToSize(record.rawText, 182);
+    splitText.forEach((line: string) => {
+      if (currentY > 270) {
+        doc.addPage();
+        currentY = 20;
+      }
+      doc.text(line, 14, currentY);
+      currentY += 4.5;
     });
   }
 

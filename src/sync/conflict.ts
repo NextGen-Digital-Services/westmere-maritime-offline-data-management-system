@@ -43,6 +43,15 @@ export function extractConflictingFields(local: RecordItem, server: ServerRecord
     }
   });
 
+  if ((local.rawText || '') !== (server.rawText || '')) {
+    fields.push({
+      key: 'rawText',
+      label: 'Raw Text Narrative',
+      localValue: local.rawText || '',
+      serverValue: server.rawText || ''
+    });
+  }
+
   return fields;
 }
 

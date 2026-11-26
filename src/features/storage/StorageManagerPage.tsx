@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useStorage } from '../../hooks/useStorage';
 import { cryptoBackup } from '../../lib/crypto';
 import { useNotificationStore } from '../../store/notificationStore';
-import { HardDrive, ShieldCheck, Download, Upload, AlertTriangle, Key } from 'lucide-react';
+import { TextInput } from '../../components/ui/form/TextInput';
+import { HardDrive, Download, Upload, ShieldCheck, Key } from 'lucide-react';
 
 export const StorageManagerPage: React.FC = () => {
   const { usedFormatted, quotaFormatted, percentUsed, isPersistent, requestPersistence } = useStorage();
@@ -61,17 +62,26 @@ export const StorageManagerPage: React.FC = () => {
     }
   };
 
+  const getPassphraseStrength = (p: string) => {
+    if (!p) return { label: 'Empty', color: 'text-muted' };
+    if (p.length < 6) return { label: 'Too short (min 6)', color: 'text-coralRed' };
+    if (p.length < 10) return { label: 'Good (AES-256)', color: 'text-sunshineYellow-dark' };
+    return { label: 'Strong (PBKDF2 100k)', color: 'text-seaGreen' };
+  };
+
+  const strength = getPassphraseStrength(passphrase);
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold font-heading text-navy dark:text-canvas">Storage & Encrypted Backup</h1>
-        <p className="text-xs text-canvas-muted mt-0.5">IndexedDB allocation telemetry and Web Crypto AES-GCM disaster recovery</p>
+        <h1 className="text-xl font-bold font-heading text-primary">Storage & Encrypted Backup</h1>
+        <p className="text-xs text-secondary mt-0.5">IndexedDB allocation telemetry and Web Crypto AES-GCM disaster recovery</p>
       </div>
 
       {/* Storage Gauge Card */}
-      <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-4">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center space-x-2 font-bold text-sm text-navy dark:text-canvas">
+      <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <div className="flex items-center space-x-2 font-bold text-sm text-primary">
             <HardDrive className="w-4 h-4 text-violet" />
             <span>Local IndexedDB Allocation</span>
           </div>
@@ -80,14 +90,14 @@ export const StorageManagerPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="w-full bg-canvas-subtle h-3 rounded-full overflow-hidden">
+        <div className="w-full bg-surface-alt h-3 rounded-full overflow-hidden border border-border">
           <div
             className={`h-full transition-all ${percentUsed > 80 ? 'bg-coralRed' : 'bg-seaGreen'}`}
             style={{ width: `${Math.max(2, percentUsed)}%` }}
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-canvas-muted gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-secondary gap-2 pt-2">
           <div>
             Persistence Mode:{' '}
             <span className={`font-bold ${isPersistent ? 'text-seaGreen' : 'text-signalOrange'}`}>
@@ -97,7 +107,7 @@ export const StorageManagerPage: React.FC = () => {
           {!isPersistent && (
             <button
               onClick={() => requestPersistence()}
-              className="px-3 py-1 bg-ocean hover:bg-ocean-hover text-white rounded font-bold"
+              className="px-3.5 py-1.5 bg-ocean hover:bg-ocean-hover text-white rounded text-xs font-bold shadow-solid transition-colors"
             >
               Request Persistent Storage
             </button>
@@ -108,30 +118,29 @@ export const StorageManagerPage: React.FC = () => {
       {/* Web Crypto Encrypted Backup & Restore */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Export Backup Card */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-4">
-          <div className="flex items-center space-x-2 font-bold text-sm text-navy dark:text-canvas">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-4">
+          <div className="flex items-center space-x-2 font-bold text-sm text-primary">
             <Download className="w-4 h-4 text-seaGreen" />
             <span>Create Encrypted Container (.seasync)</span>
           </div>
-          <p className="text-xs text-canvas-muted leading-relaxed">
+          <p className="text-xs text-secondary leading-relaxed">
             Exports all client reports, attachments metadata, settings, and audit logs into a single AES-GCM 256-bit encrypted binary package with PBKDF2 100k rounds.
           </p>
 
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-canvas-muted mb-1">Set Container Passphrase</label>
-              <input
-                type="password"
-                placeholder="Min 6 characters..."
-                value={passphrase}
-                onChange={e => setPassphrase(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-canvas border rounded focus:outline-none focus:border-ocean"
-              />
-            </div>
+            <TextInput
+              label="Set Container Passphrase"
+              type="password"
+              placeholder="Min 6 characters..."
+              value={passphrase}
+              onChange={e => setPassphrase(e.target.value)}
+              accent="green"
+              helperText={`Encryption Strength: ${strength.label}`}
+            />
             <button
               onClick={handleExportBackup}
               disabled={isExporting}
-              className="w-full py-2 bg-seaGreen hover:bg-seaGreen-dark text-white rounded text-xs font-bold shadow-solid transition-colors disabled:opacity-50"
+              className="w-full py-2.5 bg-seaGreen hover:bg-seaGreen-dark text-white rounded text-xs font-bold shadow-solid transition-colors disabled:opacity-50"
             >
               {isExporting ? 'Encrypting & Packaging...' : 'Download Encrypted Container'}
             </button>
@@ -139,27 +148,25 @@ export const StorageManagerPage: React.FC = () => {
         </div>
 
         {/* Restore Backup Card */}
-        <div className="bg-canvas-card border rounded-lg p-5 shadow-solid-sm space-y-4">
-          <div className="flex items-center space-x-2 font-bold text-sm text-navy dark:text-canvas">
+        <div className="bg-surface border border-border rounded-lg p-5 shadow-solid-sm space-y-4">
+          <div className="flex items-center space-x-2 font-bold text-sm text-primary">
             <Upload className="w-4 h-4 text-ocean" />
             <span>Restore Encrypted Container</span>
           </div>
-          <p className="text-xs text-canvas-muted leading-relaxed">
+          <p className="text-xs text-secondary leading-relaxed">
             Decrypts and safely merges saved vessel logs, deduplicating records by UUID to guarantee zero data overwriting.
           </p>
 
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-canvas-muted mb-1">Enter Container Passphrase</label>
-              <input
-                type="password"
-                placeholder="Passphrase used during export..."
-                value={restorePassphrase}
-                onChange={e => setRestorePassphrase(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-canvas border rounded focus:outline-none focus:border-ocean"
-              />
-            </div>
-            <label className="w-full py-2 bg-ocean hover:bg-ocean-hover text-white rounded text-xs font-bold shadow-solid transition-colors text-center block cursor-pointer">
+            <TextInput
+              label="Enter Container Passphrase"
+              type="password"
+              placeholder="Passphrase used during export..."
+              value={restorePassphrase}
+              onChange={e => setRestorePassphrase(e.target.value)}
+              accent="ocean"
+            />
+            <label className="w-full py-2.5 bg-ocean hover:bg-ocean-hover text-white rounded text-xs font-bold shadow-solid transition-colors text-center block cursor-pointer">
               <span>{isRestoring ? 'Decrypting & Merging...' : 'Select .seasync File & Restore'}</span>
               <input
                 type="file"
